@@ -63,7 +63,7 @@ class Tuples {
         if (j > i + 1 && maybes[i].syms.length === j - i) {
           // We have a subset.
           if (board.report)
-            board.report(`Area ${area.id} tuple from ${i} to ${j}`, maybes);
+            board.report(`Area ${area.id}, tuple from ${i} to ${j-1}`, maybes);
 
           // Eliminate the possibilities from the other cells in the
           // area.
@@ -128,7 +128,7 @@ class Tuples {
         if (j > i + 1 && syms.length === j - i) {
           // We have a subset.
           if (board.report)
-            board.report(`Row ${row} tuple from ${i} to ${j}`, maybes);
+            board.report(`Row ${row} tuple from ${i} to ${j-1}`, maybes);
           for (const sym of syms.split(""))
             fixes += board.cantBeInRow(sym, row, keep);
         }
@@ -189,7 +189,7 @@ class Tuples {
         //board.report(i, j, "not", not);
         if (j > i + 1 && syms.length === j - i) {
           // We have a subset.
-          board.report(`Col ${col} tuple from ${i} to ${j}`, maybes);
+          board.report(`Column ${col}, tuple from ${i} to ${j-1}`, maybes);
 
           for (const sym of syms.split(""))
             fixes += board.cantBeInColumn(sym, col, keep);

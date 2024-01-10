@@ -1,5 +1,5 @@
 /*Copyright (C) 2024 Crawford Currie http://c-dot.co.uk
-  License MIT. See README.md at the root of this distribution for full copyright
+  License Apache 2.0. See README.md at the root of this distribution for full copyright
   and license information.*/
 
 /**
@@ -97,7 +97,7 @@ function swordfish(board) {
         }
       }
 
-      if (matches.length === 3) {
+      if (matches.length === 3 && set1.length === 3) {
         board.report("\tSwordfish found!", matches, set1);
         // We can now eliminate sym from all the columns, keeping all the rows we matched
         const keep = [];

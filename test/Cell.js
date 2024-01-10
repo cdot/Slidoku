@@ -1,5 +1,5 @@
 /*Copyright (C) 2024 Crawford Currie http://c-dot.co.uk
-  License MIT. See README.md at the root of this distribution for full copyright
+  License Apache 2.0. See README.md at the root of this distribution for full copyright
   and license information.*/
 import { Cell } from "../src/Cell.js";
 import chai from "chai";
