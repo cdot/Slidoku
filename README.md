@@ -1,0 +1,2 @@
+# Slidoku
+Playing with Sudoku
