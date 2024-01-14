@@ -1,6 +1,6 @@
 /*Copyright (C) 2024 Crawford Currie http://c-dot.co.uk
-  License Apache 2.0. See README.md at the root of this distribution for full copyright
-  and license information.*/
+  License Apache 2.0. See README.md at the root of this distribution
+  for full copyright and license information.*/
 import { Area } from "./Area.js";
 import { MatrixReader } from "./MatrixReader.js";
 
@@ -148,13 +148,13 @@ class Board {
     const poss = this.possibilities[row][col];
     if (poss.length === 1) {
       if (poss === sym && this.report)
-        throw new Error(`Insoluble; (${row},${col}) was set to ${this.possibilities[row][col]}, but now being told it can't be that`);
+        throw new Error(`Insoluble; ${bid(row, col)} was set to ${this.possibilities[row][col]}, but now being told it can't be that`);
       return 0; // already fixed
     }
     let fixes = 0;
     const s = poss.replace(sym, "");
     if (s != poss) {
-      this.report(`\t\tRemoved "${sym}" from (${row},${col})`);
+      this.report(`\t\tRemoved "${sym}" from ${bid(row, col)}`);
       if (s.length === 1)
         fixes += this.fix(s, row, col);
       else
@@ -217,6 +217,27 @@ class Board {
   }
 
   /**
+   * Determine if two cells interact with eachother. Cells interact if
+   * they are on the same row, in the same column, or in the same area.
+   * @param {number} ar row of 1st cell
+   * @param {number} ac col of 1st cell
+   * @param {number} br row of 2nd cell
+   * @param {number} bc col of 2nd cell
+   * @return true if the cells see eachother
+   */
+  interact(ar, ac, br, bc) {
+    // Same row/col
+    if (ar === br || ac === bc) return true;
+    // Same area
+    for (const ai of this.rc2a[ar][ac]) {
+      for (const bi of this.rc2a[br][bc]) {
+        if (ai === bi) return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Fix a symbol at the given location.
    * This will rule out the symbol elsewhere in the same row, column,
    * and each area the (row,col) is in. If the fix result
@@ -228,12 +249,13 @@ class Board {
    */
   fix(sym, row, col) {
     if (!this.couldBe(sym, row, col))
-      throw new Error(`Fixing "${sym}" to (${row},${col}) not possible, as it is has "${this.possibilities[row][col]}"`);
+      throw new Error(`Fixing "${sym}" to ${bid(row, col)} not possible, as it is has "${this.possibilities[row][col]}"`);
 
     if (this.possibilities[row][col].length === 1)
       return 0; // no fix necessary
 
-    this.report(`Fix "${sym}" to (${row},${col}) {`);
+    //this.report(this.savePossibilities());
+    this.report(`Fix "${sym}" to ${bid(row, col)} {`);
 
     // Only one remaining possibility
     this.possibilities[row][col] = sym;
@@ -241,24 +263,24 @@ class Board {
     let fixes = 1;
 
     // Eliminate from rest of this row
-    this.report(`\tEliminate "${sym}" from row ${row} except (${row},${col})`);
+    this.report(`\tEliminate "${sym}" from row ${row} except ${bid(row, col)}`);
     fixes += this.cantBeInRow(sym, row, [ col ]);
     //this.report(this.savePossibilities());
 
     // Eliminate from rest of this col
-    this.report(`\tEliminate "${sym}" from column ${col} except (${row},${col})`);
+    this.report(`\tEliminate "${sym}" from column ${col} except ${bid(row, col)}`);
     fixes += this.cantBeInColumn(sym, col, [ row ]);
     //this.report(this.savePossibilities());
 
     // Eliminate from rest of containing areas
     for (const ai of this.rc2a[row][col]) {
-      this.report(`\tEliminate "${sym}" from area ${ai} except (${row},${col})`);
+      this.report(`\tEliminate "${sym}" from area ${ai} except ${bid(row, col)}`);
       for (const c of this.areas[ai].cells)
         if (!(c.row === row && c.col == col))
           fixes += this.cantBeInCell(sym, c.row, c.col);
       //this.report(this.savePossibilities());
     }
-    this.report(`} fixed "${sym}" to (${row},${col})`);
+    this.report(`} fixed "${sym}" to ${bid(row, col)}`);
     return fixes;
   }
 
@@ -438,6 +460,54 @@ class Board {
   }
 
   /**
+   * Load a classic Sudoku problem from a string.
+   * The string consists of NxN characters that represent the N symbols in
+   * cells, using "0" or " " to represent an empty cell.
+   */
+  static loadClassic(s) {
+    const dim = Math.round(Math.sqrt(s.length));
+    if (dim * dim !== s.length)
+      throw new Error(`Classic must be square ${Math.sqrt(s.length)}`);
+    const adim = Math.round(Math.sqrt(dim));
+    if (Math.floor(adim) !== adim)
+      throw new Error(`Classic must have integer root ${Math.sqrt(s.length)}`);
+
+    const syms = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".substr(0, dim);
+    const board = new Board(syms);
+
+    // Make areas
+    for (let i = 0; i < adim; i++) {
+      for (let j = 0; j < adim; j++) {
+        let area = new Area(board.areas.length);
+        for (let r = 0; r < adim; r++) {
+          for (let c = 0; c < adim; c++) {
+            const row = i * adim + r;
+            const col = j * adim + c;           
+            area.addCell(row, col);
+            board.rc2a[row][col].push(board.areas.length);
+          }
+        }
+        board.areas.push(area);
+      }
+    }
+
+    // Load the symbols into the right cells
+    let r = 0, c = 0;
+    for (const sym of s) {
+      if (sym != '0') {
+        if (board.symbols.indexOf(sym) < 0)
+          throw new Error(`Illegal sym "${sym}" for classic`);
+        board.possibilities[r][c] = sym;
+      }
+      if (++c === dim) {
+        c = 0; r++;
+      }
+    }
+
+    return board;
+  }
+
+  /**
    * For a just-loaded board, fix each cell that only has one possibility
    * @return {number} number of fixes completed
    */
@@ -503,8 +573,10 @@ class Board {
     const mat = reader.nextMatrix(this.dim);
     for (let row = 0; row < this.dim; row++) {
       for (let col = 0; col < this.dim; col++) {
-        this.possibilities[row][col] =
-        mat[row][col].split("").filter(e => e !== " ").join("");
+        let syms = mat[row][col].split("").filter(e => e !== " ").join("");
+        if (syms === "")
+          syms = this.symbols;
+        this.possibilities[row][col] = syms;
       }
     }
   }
@@ -518,11 +590,11 @@ class Board {
         const syms = mat[row][col].split("").filter(e => e !== " ").join("");
         for (const sym of syms) {
           if (!this.couldBe(sym, row, col))
-            fail(`Possibilities check at (${row},${col}) expected:${syms} actual:${this.possibilities[row][col]}`);
+            fail(`Possibilities check at ${bid(row, col)} expected:${syms} actual:${this.possibilities[row][col]}`);
         }
         for (const sym of this.possibilities[row][col])
           if (syms.indexOf(sym) < 0)
-            fail(`Possibilities check at (${row},${col}) expected:${syms} actual:${this.possibilities[row][col]}`);
+            fail(`Possibilities check at ${bid(row, col)} expected:${syms} actual:${this.possibilities[row][col]}`);
       }
     }
   }
@@ -579,6 +651,32 @@ ${this.saveBoard()}`;
   }
 }
 
-export { Board };
+/**
+ * Show a row using letters
+ * @return {string} "R" where R is a letter ("A" is the top row)
+ */
+function rid(row) {
+  return `${String.fromCharCode('A'.charCodeAt(0) + row)}`;
+}
+
+/**
+ * Show a row using letters
+ * @return {string} "R" where R is a letter ("A" is the top row)
+ */
+function cid(col) {
+  return `${col + 1}`;
+}
+
+/**
+ * Show a board position using letters for rows and numbers for
+ * columns.
+ * @return {string} "RC" where R is a letter ("A" is the top row
+ * and C is the column number (leftmost column is 1)
+ */
+function bid(row, col) {
+  return `${rid(row)}${cid(col)}`;
+}
+
+export { Board, bid, cid, rid };
 
 

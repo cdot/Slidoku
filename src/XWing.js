@@ -2,6 +2,8 @@
   License Apache 2.0. See README.md at the root of this distribution for full copyright
   and license information.*/
 
+import { bid, cid, rid } from "./Board.js";
+
 /**
  * Find row x-wings and perform eliminations.
  *
@@ -62,7 +64,7 @@ function xWing(board) {
       if (j - i === 2) {
         // Eliminate sym from the rest of the two columns
         for (const col of couldBeRows[i].cols) {
-          board.report(`\tRow X-wing; eliminate ${sym} from column ${col} keeping`, keep);
+          board.report(`\tRow X-wing; eliminate ${sym} from column ${cid(col)} keeping`, keep);
           fixes += board.cantBeInColumn(sym, col, keep);
         }
       }

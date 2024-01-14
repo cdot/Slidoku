@@ -64,7 +64,7 @@ describe("Singles", () => {
 |     6   |1  45   9|1 34  7 9| 2  5   9|       8 | 2      9|12  5 7 9|12345   9|  345 7 9|
 `);
     const ass = Singles.area(b);
-    assert.equal(ass, 2);
+    assert.equal(ass, 3);
 
     assert.equal(
       b.savePossibilities(0),
@@ -77,7 +77,7 @@ describe("Singles", () => {
       "| 23   7  |     6 8 | 2   6   |   4     | 2      9| 23   789|    56  9|  3 56  9|1        |");
     assert.equal(
       b.savePossibilities(3),
-      "| 2  5    |  3      | 2   6  9| 2   6 89| 2  5 7 9|1        |   4     | 2  56  9|    56 89|");
+      "| 2  5    |  3      | 2   6  9| 2   6 89|      7  |1        |   4     | 2  56  9|    56 89|");
     assert.equal(
       b.savePossibilities(4),
       "| 2 45    |      7  | 2 4 6  9| 23  6 89| 2 45   9| 23  6 89|12  56 89|12  56  9|    56 89|");
@@ -153,5 +153,62 @@ describe("Singles", () => {
 |1   5    |1   5   9|1       9|      7  |  3      |   4     |12  56 89|12  56  9|    56 89|
 |       8 | 2       |  34  7 9|    56  9|1        |     6  9|    5   9|  345   9|  345 7 9|
 |     6   |1  45   9|1 34  7 9| 2  5   9|       8 | 2      9|1   5   9|1 345   9|  345 7 9|`, e => assert(false, e));
+  });
+
+  it("constrained", () => {
+    const b = Board.loadPuzzle(`
+ABCD
+|0|0|1|1|
+|0|0|1|1|
+|2|2|3|3|
+|2|2|3|3|
+
+|||||
+|||||
+|||||
+|||||
+`);
+
+    b.loadPossibilities(`
+|A   |   D| B  |  C |
+| B  |  C |   D|A   |
+|  C | B  |ABCD|   D|
+|   D|A   |  C | B  |
+`);
+    assert.equal(Singles.row(b), 1);
+    b.checkPossibilities(`
+|A   |   D| B  |  C |
+| B  |  C |   D|A   |
+|  C | B  |A   |   D|
+|   D|A   |  C | B  |
+`, e => assert(false, e));
+
+    b.loadPossibilities(`
+|A   |   D| B  |  C |
+| B  |  C |   D|A   |
+|  C | B  |ABCD|   D|
+|   D|A   |  C | B  |
+`);
+    assert.equal(Singles.column(b), 1);
+    b.checkPossibilities(`
+|A   |   D| B  |  C |
+| B  |  C |   D|A   |
+|  C | B  |A   |   D|
+|   D|A   |  C | B  |
+`, e => assert(false, e));
+
+    b.loadPossibilities(`
+|A   |   D| B  |  C |
+| B  |  C |   D|A   |
+|  C | B  |ABCD|   D|
+|   D|A   |  C | B  |
+`);
+    assert.equal(Singles.area(b), 1);
+    b.checkPossibilities(`
+|A   |   D| B  |  C |
+| B  |  C |   D|A   |
+|  C | B  |A   |   D|
+|   D|A   |  C | B  |
+`, e => assert(false, e));
   });
 });    

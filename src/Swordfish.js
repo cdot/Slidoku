@@ -2,6 +2,8 @@
   License Apache 2.0. See README.md at the root of this distribution for full copyright
   and license information.*/
 
+import { bid, cid, rid } from "./Board.js";
+
 /**
  * Try and find a row-major swordfish.
  *
@@ -105,7 +107,7 @@ function swordfish(board) {
           keep.push(couldBe.row);
         keep.sort();
         for (const col of set1) {
-          board.report(`\tEliminate "${sym}" from column ${col} keeping rows`, keep);
+          board.report(`\tEliminate "${sym}" from column ${cid(col)} keeping rows`, keep);
           fixes += board.cantBeInColumn(sym, col, keep);
         }
         if (fixes > 0)

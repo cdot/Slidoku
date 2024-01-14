@@ -1,3 +1,7 @@
+/*Copyright (C) 2024 Crawford Currie http://c-dot.co.uk
+  License Apache 2.0. See README.md at the root of this distribution
+  for full copyright and license information.*/
+
 import { Board } from "../src/Board.js";
 import { Singles } from "../src/Singles.js";
 import { Tuples } from "../src/Tuples.js";
@@ -5,6 +9,11 @@ import { xWing } from "../src/XWing.js";
 import { yWing } from "../src/YWing.js";
 import { swordfish } from "../src/Swordfish.js";
 
+/**
+ * The general problem of solving Sudoku puzzles on n2×n2 grids of n×n
+ * blocks is known to be NP-complete (it can be expressed as a graph
+ * colouring problem).
+ */
 function solve(board) {
   let changes, allChanges = 0;
   const requires = {};
@@ -25,30 +34,42 @@ function solve(board) {
   do {
     changes = 0;
 
-    board.report("-- Row singles");
-    if (solvedWith(Singles.row(board), "Row singles"))
+    if (solvedWith(Singles.board(board), "Singles"))
       break;
 
-    if (solvedWith(Singles.column(board), "Column singles"))
-      break;
-    console.log(board.savePossibilities());
-    if (solvedWith(Singles.area(board), "Area singles"))
-      break;
+    // Simple stuff is done, checkpoint before moving to
+    // more advanced strategies
+    //console.log(board.savePossibilities());
 
     if (solvedWith(Tuples.row(board), "Row tuples"))
       break;
 
+    if (changes > 0)
+      continue;
+
     if (solvedWith(Tuples.column(board), "Column tuples"))
       break;
+
+    if (changes > 0)
+      continue;
 
     if (solvedWith(Tuples.area(board), "Area tuples"))
       break;
 
+    if (changes > 0)
+      continue;
+
     if (solvedWith(xWing(board), "XWing"))
       break;
 
+    if (changes > 0)
+      continue;
+
     if (solvedWith(yWing(board), "YWing"))
       break;
+
+    if (changes > 0)
+      continue;
 
     if (solvedWith(swordfish(board), "Swordfish"))
       break;

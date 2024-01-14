@@ -1,3 +1,9 @@
+/*Copyright (C) 2024 Crawford Currie http://c-dot.co.uk
+  License Apache 2.0. See README.md at the root of this distribution
+  for full copyright and license information.*/
+
+import { bid, cid, rid } from "./Board.js";
+
 /**
  * Solver for tuples.
  * A tuple is found when there are N cells in an area, row, or column,
@@ -23,7 +29,7 @@ class Tuples {
         const maybe = board.possibilities[cell.row][cell.col];
         // Only interested if there are at least 2 maybes, and they are not all numbers
         if (maybe.length > 1 && maybe.length < board.dim) {
-          //board.report(`Area ${area.id} Cell (${cell.row},${cell.col}) ${maybe}`);
+          //board.report(`Area ${area.id} cell ${bid(cell.row, cell.col)} ${maybe}`);
           maybes.push({ row: cell.row, col: cell.col, index: index, syms: maybe });
         }
         index++;
@@ -62,8 +68,7 @@ class Tuples {
         }
         if (j > i + 1 && maybes[i].syms.length === j - i) {
           // We have a subset.
-          if (board.report)
-            board.report(`Area ${area.id}, tuple from ${i} to ${j-1}`, maybes);
+          board.report(`Area ${area.id} tuple`, maybes.slice(i, j));
 
           // Eliminate the possibilities from the other cells in the
           // area.
@@ -92,7 +97,7 @@ class Tuples {
         const maybe = board.possibilities[row][col];
         // Only interested if there are at least 2 maybes, and they are not all numbers
         if (maybe.length > 1 && maybe.length < board.dim) {
-          //if (board.report) board.report(`Row ${row} col ${col} ${maybe}`);
+          //board.report(`${bid(row,col) ${maybe}`);
           maybes.push({ col: col, syms: maybe });
         }
       }
@@ -115,7 +120,7 @@ class Tuples {
       });
 
       for (let i = 0; i < maybes.length - 1; i++) {
-        //if (board.report) board.report(i);
+        //board.report(i);
         const syms = maybes[i].syms;
         let j = i + 1;
         const keep = [ maybes[i].col ];
@@ -127,8 +132,7 @@ class Tuples {
         //board.report(i, j, "not", not);
         if (j > i + 1 && syms.length === j - i) {
           // We have a subset.
-          if (board.report)
-            board.report(`Row ${row} tuple from ${i} to ${j-1}`, maybes);
+          board.report(`Row ${rid(row)} tuple`, maybes);
           for (const sym of syms.split(""))
             fixes += board.cantBeInRow(sym, row, keep);
         }
@@ -154,7 +158,7 @@ class Tuples {
         const maybe = board.possibilities[row][col];
         // Only interested if there are at least 2 maybes, and they are not all numbers
         if (maybe.length > 1 && maybe.length < board.dim) {
-          //board.report(`Row ${row} col ${col} ${maybe}`);
+          //board.report(`${bid(row, col)} ${maybe}`);
           maybes.push({ row: row, syms: maybe });
         }
       }
@@ -189,7 +193,7 @@ class Tuples {
         //board.report(i, j, "not", not);
         if (j > i + 1 && syms.length === j - i) {
           // We have a subset.
-          board.report(`Column ${col}, tuple from ${i} to ${j-1}`, maybes);
+          board.report(`Column ${cid(col)}, tuple`, maybes);
 
           for (const sym of syms.split(""))
             fixes += board.cantBeInColumn(sym, col, keep);

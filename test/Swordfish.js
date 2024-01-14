@@ -49,10 +49,9 @@ describe("Swordfish", () => {
 |47|8|9|5|1|2|47|6|3|
 |36|36|1|8|4|7|25|25|9|
 `);
-    b.report = console.debug;
+    //b.report = console.debug;
     assert.equal(swordfish(b), 1);
     // "1" will be fixed to (4,0) as a side-effect of the swordfish
-    console.log(b.savePossibilities());
     b.checkPossibilities(
       `
 |9|26|8|7|3|5|1|24|246|
@@ -67,9 +66,8 @@ describe("Swordfish", () => {
       mess => assert(false, mess + "\n" + b.savePossibilities()));
   });
 
-  UNit("transposed", () => {
+  it("transposed", () => {
     let b = Board.loadPuzzle(BASE);
-    console.log(b.savePossibilities());
     b.loadPossibilities(`
 |9|26|8|7|3|5|1|24|246|
 |4567|1|2467|9|8|46|2567|3|2567|
@@ -82,7 +80,7 @@ describe("Swordfish", () => {
 |36|36|1|8|4|7|25|25|9|
 `);
     b = b.transposed();
-    b.report = console.debug;
+    //b.report = console.debug;
     assert.equal(swordfish(b), 0);
     // There's no swordfish on this axis
     b.checkPossibilities(`

@@ -1,4 +1,9 @@
-import { Board } from "./Board.js";
+/*Copyright (C) 2024 Crawford Currie http://c-dot.co.uk
+License Apache 2.0. See README.md at the root of this distribution for
+full copyright and license information.*/
+
+import { Board, bid, cid, rid } from "./Board.js";
+
 /**
  * A visual representation of a board
  */
@@ -47,7 +52,7 @@ class Grid extends Board {
         if (poss.length === 1) {
           const i = symbols.indexOf(poss.charAt(0));
           if (i < 0)
-            throw new Error(`Unexpected symbol ${poss.charAt(0)} at (${row},${col})`);
+            throw new Error(`Unexpected symbol ${poss.charAt(0)} at ${bid(row, col)}`);
           symbols.splice(i, 1);
         }
       }
