@@ -275,6 +275,7 @@ ABCD
     assert.equal(b.firstFix(), 0);
     b.report = console.debug;
     const result = solve(b);
+    console.debug(b.savePossibilities());
     assert.deepEqual(result, {Singles:28});
     // insoluble without inference chain
     assert(b.isSolved(), b.savePossibilities());
